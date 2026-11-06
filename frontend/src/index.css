@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+  --color-marca-900: #0f3d2b;
+  --color-marca-700: #0b5d3f;
+  --color-marca-600: #14805a;
+  --color-marca-400: #8fa66b;
+  --color-lima: #d8f78f;
+  --color-oliva: #e6e8c8;
+  --color-menta: #dde8dc;
+  --font-serif: Georgia, "Times New Roman", serif;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-neutral-900 antialiased;
+  }
+}
