@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB_NAME:-vitrinachat}
+      POSTGRES_USER: ${DB_USER:-vitrina_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vitrina_dev_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vitrina_user} -d ${DB_NAME:-vitrinachat}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-dev-only-insecure-key-change-me}
+      DEBUG: ${DEBUG:-True}
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_NAME: ${DB_NAME:-vitrinachat}
+      DB_USER: ${DB_USER:-vitrina_user}
+      DB_PASSWORD: ${DB_PASSWORD:-vitrina_dev_pass}
+      DB_HOST: db
+      DB_PORT: "5432"
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_PROXY_TARGET: http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
